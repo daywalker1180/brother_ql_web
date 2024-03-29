@@ -81,7 +81,7 @@ def get_label_context(request):
         "threshold": int(d.get("threshold", 70)),
         "align": d.get("align", "center"),
         "orientation": d.get("orientation", "standard"),
-        "margin_top": float(d.get("margin_top", 20)) / 100.0,
+        "margin_top": float(d.get("margin_top", 25)) / 100.0,
         "margin_bottom": float(d.get("margin_bottom", 25)) / 100.0,
         "margin_left": float(d.get("margin_left", 25)) / 100.0,
         "margin_right": float(d.get("margin_right", 25)) / 100.0,
@@ -288,8 +288,8 @@ def create_label_grocy(text, **kwargs):
     datamatrix = Image.frombytes("RGB", (encoded.width, encoded.height), encoded.pixels)
     datamatrix.save("/tmp/dmtx.png")
 
-    text_font = ImageFont.truetype(kwargs["font_path"], 40)
-    duedate_font = ImageFont.truetype(kwargs["font_path"], 25)
+    text_font = ImageFont.truetype(kwargs["font_path"], 50)
+    duedate_font = ImageFont.truetype(kwargs["font_path"], 35)
     width = kwargs["width"]
     height = 150
     if kwargs["orientation"] == "rotated":
