@@ -326,7 +326,7 @@ def create_label_grocy(text, **kwargs):
 
     import textwrap
 
-    text_lines = textwrap.fill(text, 15).partition('\n')
+    text_lines = textwrap.fill(text, 15).splitlines()
     logger.info("Split string: %s", text_lines)
 
     textoffset = horizontal_offset, vertical_offset
