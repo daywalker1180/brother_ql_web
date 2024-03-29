@@ -72,11 +72,11 @@ def get_label_context(request):
     font_style = d.get("font_family").rpartition("(")[2].rstrip(")")
     context = {
         "text": d.get("text", None),
-        "font_size": int(d.get("font_size", 100)),
+        "font_size": int(d.get("font_size", 40)),
         "font_family": font_family,
         "font_style": font_style,
-        "label_size": d.get("label_size", "62"),
-        "kind": label_type_specs[d.get("label_size", "62")]["kind"],
+        "label_size": d.get("label_size", "50"),
+        "kind": label_type_specs[d.get("label_size", "50")]["kind"],
         "margin": int(d.get("margin", 10)),
         "threshold": int(d.get("threshold", 70)),
         "align": d.get("align", "center"),
@@ -87,7 +87,7 @@ def get_label_context(request):
         "margin_right": float(d.get("margin_right", 35)) / 100.0,
         "grocycode": d.get("grocycode", None),
         "product": d.get("product", None),
-        "duedate": d.get("duedate", None),
+        "duedate": d.get("due_date", None),
         "battery": d.get("battery", None),
         "chore": d.get("chore", None),
     }
@@ -130,7 +130,7 @@ def get_label_context(request):
 def create_label_im(text, **kwargs):
     label_type = kwargs["kind"]
     im_font = ImageFont.truetype(kwargs["font_path"], kwargs["font_size"])
-    im = Image.new("L", (20, 20), "white")
+    im = Image.new("L", (25, 25), "white")
     draw = ImageDraw.Draw(im)
     # workaround for a bug in multiline_textsize()
     # when there are empty lines in the text:
@@ -188,9 +188,9 @@ def create_label_grocy_1d(text, **kwargs):
         else:
             text = battery
 
-        text_font_size = 80
-        duedate_font_size = 40
-        barcode_height = 120
+        text_font_size = 40
+        duedate_font_size = 20
+        barcode_height = 100
 
         from barcode.codex import Code128
         from barcode.writer import ImageWriter
