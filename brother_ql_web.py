@@ -81,10 +81,10 @@ def get_label_context(request):
         "threshold": int(d.get("threshold", 70)),
         "align": d.get("align", "center"),
         "orientation": d.get("orientation", "standard"),
-        "margin_top": float(d.get("margin_top", 24)) / 100.0,
-        "margin_bottom": float(d.get("margin_bottom", 45)) / 100.0,
-        "margin_left": float(d.get("margin_left", 35)) / 100.0,
-        "margin_right": float(d.get("margin_right", 35)) / 100.0,
+        "margin_top": float(d.get("margin_top", 20)) / 100.0,
+        "margin_bottom": float(d.get("margin_bottom", 25)) / 100.0,
+        "margin_left": float(d.get("margin_left", 25)) / 100.0,
+        "margin_right": float(d.get("margin_right", 25)) / 100.0,
         "grocycode": d.get("grocycode", None),
         "product": d.get("product", None),
         "duedate": d.get("due_date", None),
@@ -288,10 +288,10 @@ def create_label_grocy(text, **kwargs):
     datamatrix = Image.frombytes("RGB", (encoded.width, encoded.height), encoded.pixels)
     datamatrix.save("/tmp/dmtx.png")
 
-    text_font = ImageFont.truetype(kwargs["font_path"], 100)
-    duedate_font = ImageFont.truetype(kwargs["font_path"], 60)
+    text_font = ImageFont.truetype(kwargs["font_path"], 40)
+    duedate_font = ImageFont.truetype(kwargs["font_path"], 25)
     width = kwargs["width"]
-    height = 200
+    height = 120
     if kwargs["orientation"] == "rotated":
         tw = width
         width = height
