@@ -333,7 +333,7 @@ def create_label_grocy(text, **kwargs):
 
     draw.text(textoffset, text_lines[0], kwargs["fill_color"], font=text_font)
 
-    if(text_lines.len() > 1):
+    if(len(text_lines) > 1):
         if kwargs["orientation"] == "standard":
             vertical_offset += 30
             horizontal_offset = encoded.width + 20
