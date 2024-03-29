@@ -291,7 +291,7 @@ def create_label_grocy(text, **kwargs):
     text_font = ImageFont.truetype(kwargs["font_path"], 40)
     duedate_font = ImageFont.truetype(kwargs["font_path"], 25)
     width = kwargs["width"]
-    height = 120
+    height = 150
     if kwargs["orientation"] == "rotated":
         tw = width
         width = height
