@@ -291,7 +291,7 @@ def create_label_grocy(text, **kwargs):
     text_font = ImageFont.truetype(kwargs["font_path"], 45)
     duedate_font = ImageFont.truetype(kwargs["font_path"], 35)
     width = kwargs["width"]
-    height = 150
+    height = 160
     if kwargs["orientation"] == "rotated":
         tw = width
         width = height
@@ -319,10 +319,10 @@ def create_label_grocy(text, **kwargs):
 
     if kwargs["orientation"] == "standard":
         # vertical_offset += -10
-        horizontal_offset = encoded.width + 45
+        horizontal_offset = encoded.width + 20
     elif kwargs["orientation"] == "rotated":
-        vertical_offset += encoded.width + 40
-        horizontal_offset += -10
+        vertical_offset += encoded.width + 20
+        # horizontal_offset += -10
 
     textoffset = horizontal_offset, vertical_offset
 
@@ -331,10 +331,10 @@ def create_label_grocy(text, **kwargs):
     if duedate is not None:
         if kwargs["orientation"] == "standard":
             vertical_offset += 115
-            horizontal_offset = kwargs["margin_left"] + 5
+            horizontal_offset = kwargs["margin_left"] + 8
         elif kwargs["orientation"] == "rotated":
-            vertical_offset = kwargs["margin_left"] + 5
-            horizontal_offset += 110
+            vertical_offset = kwargs["margin_left"] + 8
+            horizontal_offset += 115
         textoffset = horizontal_offset, vertical_offset
 
         draw.text(textoffset, duedate, kwargs["fill_color"], font=duedate_font)
