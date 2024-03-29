@@ -324,9 +324,25 @@ def create_label_grocy(text, **kwargs):
         vertical_offset += encoded.width + 20
         # horizontal_offset += -10
 
+    import textwrap
+
+    text_lines = textwrap.fill(text, 15).partition('\n')
+
     textoffset = horizontal_offset, vertical_offset
 
-    draw.text(textoffset, text, kwargs["fill_color"], font=text_font)
+    draw.text(textoffset, text_lines[0], kwargs["fill_color"], font=text_font)
+
+    if(text_lines.count > 1):
+        if kwargs["orientation"] == "standard":
+            vertical_offset += 30
+            horizontal_offset = encoded.width + 20
+        elif kwargs["orientation"] == "rotated":
+            vertical_offset += encoded.width + 20
+            horizontal_offset += 30
+
+        textoffset = horizontal_offset, vertical_offset
+
+        draw.text(textoffset, text_lines[1], kwargs["fill_color"], font=text_font)
 
     if duedate is not None:
         if kwargs["orientation"] == "standard":
