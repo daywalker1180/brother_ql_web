@@ -6,8 +6,8 @@
     "ADDITIONAL_FONT_FOLDER": false
   },
   "PRINTER": {
-    "MODEL": "QL-500",
-    "PRINTER": "file:///dev/usb/lp1"
+    "MODEL": "QL-570",
+    "PRINTER": "file:///dev/usb/lp0"
   },
   "LABEL": {
     "DEFAULT_SIZE": "62",
@@ -23,5 +23,11 @@
     "HTML_TITLE": "Label Designer",
     "PAGE_TITLE": "Brother QL Label Designer",
     "PAGE_HEADLINE": "Design your label and print it…"
+  },
+  "GROCY": {
+    "GROCY_SERVER": "https://en.demo.grocy.info",
+    "GROCY_PORT": 80,
+    "API_KEY": "bhwpf6hb7D4pGiL3dC4DtMaGzihAJP6vEuijYNPyJPXTyk8TUD",
+    "VERIFY_SSL": "True"
   }
 }

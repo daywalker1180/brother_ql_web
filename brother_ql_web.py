@@ -5,7 +5,7 @@
 This is a web service to print labels on Brother QL label printers.
 """
 
-import sys, logging, random, json, argparse
+import sys, logging, random, json, argparse, pygrocy
 from io import BytesIO
 
 from bottle import (
@@ -25,6 +25,7 @@ from brother_ql.devicedependent import models, label_type_specs, label_sizes
 from brother_ql.devicedependent import ENDLESS_LABEL, DIE_CUT_LABEL, ROUND_DIE_CUT_LABEL
 from brother_ql import BrotherQLRaster, create_label
 from brother_ql.backends import backend_factory, guess_backend
+import requests
 
 from font_helpers import get_fonts
 
@@ -271,6 +272,12 @@ def create_label_grocy(text, **kwargs):
     battery = kwargs["battery"]
     duedate = kwargs["duedate"]
     grocycode = kwargs["grocycode"]
+    note = kwargs["note"]
+    amount_qu = ""
+    try:
+        amount_qu = kwargs["amount_qu"]
+    except KeyError as ke:
+        pass
 
     text = None
     if product:
@@ -292,7 +299,7 @@ def create_label_grocy(text, **kwargs):
     text_font = ImageFont.truetype(kwargs["font_path"], 45)
     duedate_font = ImageFont.truetype(kwargs["font_path"], 35)
     width = kwargs["width"]
-    height = 180
+    height = 250
     if kwargs["orientation"] == "rotated":
         tw = width
         width = height
@@ -357,6 +364,29 @@ def create_label_grocy(text, **kwargs):
 
         draw.text(textoffset, duedate, kwargs["fill_color"], font=duedate_font)
 
+    if note is not None:
+        if kwargs["orientation"] == "standard":
+            vertical_offset = kwargs["margin_top"] + 155
+            horizontal_offset = kwargs["margin_left"] + 8
+        elif kwargs["orientation"] == "rotated":
+            vertical_offset = kwargs["margin_left"] + 8
+            horizontal_offset = kwargs["margin_left"] + 155
+        textoffset = horizontal_offset, vertical_offset
+
+        draw.text(textoffset, note, kwargs["fill_color"], font=duedate_font)
+
+    if amount_qu is not None:
+        if kwargs["orientation"] == "standard":
+            vertical_offset = kwargs["margin_top"] + 195
+            horizontal_offset = kwargs["margin_left"] + 8
+        elif kwargs["orientation"] == "rotated":
+            vertical_offset = kwargs["margin_left"] + 8
+            horizontal_offset = kwargs["margin_left"] + 195
+        textoffset = horizontal_offset, vertical_offset
+
+        draw.text(textoffset, amount_qu, kwargs["fill_color"], font=duedate_font)
+
+
     return im
 
 
@@ -403,12 +433,41 @@ def print_grocy():
     if context["product"] is None and context["battery"] and context["chore"]:
         return_dict["error"] = "Please provide the product/battery/chore for the label"
         return return_dict
+    
+    from pygrocy import Grocy
+
+    if context["product"]:
+        grocycode = context["grocycode"]
+        grocy_api_key = CONFIG["GROCY"]["API_KEY"]
+        _headers = {"accept": "application/json", "GROCY-API-KEY": grocy_api_key}
+        grocy_server = CONFIG["GROCY"]["GROCY_SERVER"]
+        grocy_port = CONFIG["GROCY"]["GROCY_PORT"]
+        grocy_verify_ssl_str = CONFIG["GROCY"]["VERIFY_SSL"]
+        grocy_verify_ssl = grocy_verify_ssl_str == "True"
+        grocy = Grocy(grocy_server, api_key=grocy_api_key, port=grocy_port, verify_ssl=grocy_verify_ssl)
+        code_parts = grocycode.split(":")
+        if(len(code_parts)>3):
+            cb_product = code_parts[2]
+            p = grocy.product(int(cb_product))
+            qu =  p.default_quantity_unit_purchase.name
+            
+            cb_stock_id = code_parts[3]
+            url = grocy_server + ":" + str(grocy_port) + "/api/objects/stock_log"
+            query_filters = "stock_id=" + cb_stock_id
+            params =  {"query[]": query_filters}            
+            resp = requests.get(url, verify=grocy_verify_ssl, headers=_headers ,params=params)
+            xjson = resp.json();
+            if (resp.status_code <= 400) and (len(resp.content) > 0) and xjson[0]["note"]:
+                context["note"] = xjson[0]["note"]
+            if (resp.status_code <= 400) and (len(resp.content) > 0) and xjson[0]["amount"]:
+                context["amount_qu"] = str(xjson[0]["amount"]) + " " + str(qu)
 
     import os
 
     code_1d = False
-    if os.environ.get("Code128") and os.environ.get("Code128") == "1":
-        code_1d = True
+    # Daywalker1180: Always use Datamatrix - independent of settings
+    #if os.environ.get("Code128") and os.environ.get("Code128") == "1":
+    #    code_1d = True
 
     im = None
     if code_1d:
