@@ -434,7 +434,7 @@ def print_grocy():
         return_dict["error"] = "Please provide the product/battery/chore for the label"
         return return_dict
     
-    from pygrocy import Grocy
+    from pygrocy import Grocy, grocy_api_client
 
     if context["product"]:
         grocycode = context["grocycode"]
@@ -448,15 +448,34 @@ def print_grocy():
         code_parts = grocycode.split(":")
         if(len(code_parts)>3):
             cb_product = code_parts[2]
+            # attempt 1: use pygrocy instance
             p = grocy.product(int(cb_product))
-            qu =  p.default_quantity_unit_purchase.name
+            qu =  p.default_quantity_unit_purchase.name # << may be incorrect, because is used for purchasing, not stock!
+
+            # attempt 2: build requests against API to find out --> if smthg goes wrong we have at least the purching QU name
+            url = grocy_server + ":" + str(grocy_port) + "/api/objects/products"
+            query_filters = "id=" + cb_product
+            params =  {"query[]": query_filters}            
+            resp = requests.get(url, verify=grocy_verify_ssl, headers=_headers ,params=params)
+            xjson = resp.json()
+            if (resp.status_code <= 400) and (len(resp.content) > 0) and xjson[0]["qu_id_stock"]:
+                qu_id_stock = xjson[0]["qu_id_stock"]
+                context["qu_id_stock"] = qu_id_stock
+                url = grocy_server + ":" + str(grocy_port) + "/api/objects/quantity_units"
+                query_filters = "id=" + qu_id_stock
+                params =  {"query[]": query_filters}            
+                resp = requests.get(url, verify=grocy_verify_ssl, headers=_headers ,params=params)
+                xjson = resp.json()
+                if (resp.status_code <= 400) and (len(resp.content) > 0) and xjson[0]["name"]:
+                    qu = xjson[0]["name"]
+                    context["qu_name"] = qu
             
             cb_stock_id = code_parts[3]
             url = grocy_server + ":" + str(grocy_port) + "/api/objects/stock_log"
             query_filters = "stock_id=" + cb_stock_id
             params =  {"query[]": query_filters}            
             resp = requests.get(url, verify=grocy_verify_ssl, headers=_headers ,params=params)
-            xjson = resp.json();
+            xjson = resp.json()
             if (resp.status_code <= 400) and (len(resp.content) > 0) and xjson[0]["note"]:
                 context["note"] = xjson[0]["note"]
             if (resp.status_code <= 400) and (len(resp.content) > 0) and xjson[0]["amount"]:
