@@ -462,7 +462,7 @@ def print_grocy():
                 qu_id_stock = xjson[0]["qu_id_stock"]
                 context["qu_id_stock"] = qu_id_stock
                 url = grocy_server + ":" + str(grocy_port) + "/api/objects/quantity_units"
-                query_filters = "id=" + qu_id_stock
+                query_filters = "id=" + str(qu_id_stock)
                 params =  {"query[]": query_filters}            
                 resp = requests.get(url, verify=grocy_verify_ssl, headers=_headers ,params=params)
                 xjson = resp.json()
